@@ -2,8 +2,10 @@
 #265904
 
 import requests
+from bs4 import BeautifulSoup
 import json
 
+alpha = input("Please input your alpha: ")
 url = "https://mids.usna.edu/ITSD/mids/drgwq010$mids.actionquery"
 h = {
 "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101Firefox/130.0", 
@@ -16,7 +18,7 @@ h = {
 "Origin": "https://mids.usna.edu",
 "Connection": "keep-alive",
 "Referer": "https://mids.usna.edu/ITSD/mids/drgwq010$.startup",
-"Cookie": "f5_cspm=1234; WSG$DRGWQ010$URL0=/ITSD/mids/drgwq010$.startup; WSG$DRGWQ010$CAP0=Schedules_-_Query_Midshipmen; WSG$DRGWQ010$URL2=/ITSD/mids/drgwq010$mids.queryview?K_MIDS_ID=75769&K_SECOF_ID=192664&P_ALPHA=&P_LAST_NAME=&P_MICO_CO_NBR=&P_SECOF_COOF_SEBLDA_AC_YR=&P_SECOF_COOF_SEBLDA_SEM=&P_SECOF_COOF_SEBLDA_BLK_NBR=&P_MAJOR_CODE=&P_NOMI_FORMATTED_NAME=&Z_EXECUTE_QUERY=&Z_START=1&Z_ACTION=&Z_CHK=25218; WSG$DRGWQ010$CAP2=Schedule; f5avraaaaaaaaaaaaaaaa_session_=JGEGKJGFFBDHHKCCGMONIOBHOEAKEGBKFEDIFHLDOEFFPINMKHDCAEHOHJHLJMELLJODBFOHPKNINMDHPLIAIOLGNDOAHBPLEDJJKENJICOHLLACJEPJIHHAAPLKLAPM; _ga=GA1.1.210712040.1628270994; _ga_LY79N0FLBS=GS1.1.1725563936.33.0.1725563943.0.0.0; nmstat=8f8b7e0d-39de-dca3-e4f0-69fb171ed374; BIGipServermids_prod=!KLc+DaqlDf9OPPlHrP/1DhKiDM7x/gGOc0bJN/2PwH5H2W+Km9Cpb3qNcPML/tFrVpT6bxLqRUfPCXY=; f5avraaaaaaaaaaaaaaaa_session_=LFHJLNKMGLBNCIHPDCCJJAHJLGCOOLOGLJMFKNEGCOPKALBDLLLLCCDDNABNHMCEEEMDABIGAMHJGGNKIHEAKALFHDKCHBFCFKBPHGGJEFDEAFGIOHAAKDEHEGFLDHAG; OAMAuthnCookie_mids.usna.edu:443=AC8xg1KCYzAC4SoADnaZXRC42ejdiiqBGF63ftktg8XMgKpMnzWuW01oFohDJpNwEP033eDJYTG0h6TOebK008ex0BROKbMVDDw1bOdCuAplu9OymxZRrnwXyYrltibBKvmkejC1M1ERTqQLollmJa4z%2B6%2BalnCnHCnFCWimlidGW6EdN4%2FK7R8%2Fi%2Bma%2FaGc%2BMVTqiuZm%2BwWhqz50hdRwPn%2B7DW64O5biGJ1NjU3lOhJ6pHfIpRTv5xh7KNxo%2Flf7Tb%2B54rwSa%2B0hkgS9XTBxWLmxOE8iae5WhFvt5l3Y9XTPV3b5kwYJ%2FwTowcVCrvTSs%2BUiaC8JYK44EtuNj270uNb1Um%2BOd%2BkCfgi0zthfVAZWrrseQHR%2Bqpxevs2jlrxm8MkhgdTR5tIskad%2FdUbsQ03K2fMhhve7DmZePgkGfAl2D4iSViEG7S0FdeY7X4BaBMSL6JOHO4%2F4Feo4%2FsL8MtkUx8uLcpnfsg77M08kqXE%2BbIrVfI9Vc0iiRw7Piab5x9yyxix4SrQPRfp96HQmAKsIAAtxAq0y3SiaoaMGm1i5guIYU5XLIAWqH%2BOdZK90mpYS1OCe1gpa9LotkSMNA%3D%3D" ,
+"Cookie": "f5_cspm=1234; WSG$DRGWQ010$URL0=/ITSD/mids/drgwq010$.startup; WSG$DRGWQ010$CAP0=Schedules_-_Query_Midshipmen; WSG$DRGWQ010$URL2=/ITSD/mids/drgwq010$mids.queryview?K_MIDS_ID=75769&K_SECOF_ID=192664&P_ALPHA=&P_LAST_NAME=&P_MICO_CO_NBR=&P_SECOF_COOF_SEBLDA_AC_YR=&P_SECOF_COOF_SEBLDA_SEM=&P_SECOF_COOF_SEBLDA_BLK_NBR=&P_MAJOR_CODE=&P_NOMI_FORMATTED_NAME=&Z_EXECUTE_QUERY=&Z_START=1&Z_ACTION=&Z_CHK=25218; WSG$DRGWQ010$CAP2=Schedule; _ga=GA1.1.1485736831.1725991820; _ga_LY79N0FLBS=GS1.1.1726097850.2.0.1726097852.0.0.0; BIGipServermids_prod=!or5GczShenEThFFHrP/1DhKiDM7x/vxMXV45/13NR5ukSm0f3oLUf3jbcdwpZckJtYEuzJh6YkCJOA==; f5avraaaaaaaaaaaaaaaa_session_=NJGDKONKAGPDJOHNEIDHDGHKBALLPHEBFIMOKACJKLIOAPBKEBJAHKLBENFFHHCMLEODBNCBKLDLBHNACAJAFCNGAIPEJNKDDGENHGHBBPABOBDJHOGOIBANPFDGNFCB; OAMAuthnCookie_mids.usna.edu:443=pDhu6U88La9%2BApB5L5bcyC0keKlBtj%2Fm9sO8kthx7iXOuFeEOZOR55OJGc6QlWSrx5i3L5HiP7NXDJedCVr4uw101rZBVfWP83tgwHpJxnCqHZIuEpVFNcP0as0y%2BHjwOBkw4PzEZhit1h1x8LdhG1TVgF4MDhB%2Fs46lAdNfle51vb7n2ONqOkyNeDkS%2FKiNUl3xeT%2BFJqdQrfYtC2NodyAO4c0FIZjwcsibv8ESczxhRw3P4cPIPwc%2FUvlsEG4ZKyY%2F17H6VixAbqKdzTCbGufdo2miiFbXpMBUQj73WNkzxjLenoWHr%2B2kPMOlS0zKCYgWeSu7LxHIPfyY%2FjbHYGt%2BywksVYyN0YB4Cq%2F%2FcFnQop0i5IkuRx3ny6r7IRqJNXm2C0E3g4rZqvW9I2WnrvQQ66n04i1JNKK9izk%2FW5Rd%2FE325Vhy8ppqXA2yBQDgyeFsXMfpBVsTiT703Aw8sqQkXhRecM5se5qkh7LG%2BcYRKfRL3vOXIhoKeb7cBYqQewn2E9zrczIOwghqAFBOA13qEvFbnbB1GNu0oWlTqNpbKX2sqe4TjzKU32mCl0mZuEZv%2FO%2Fgl%2F0RnRVN5vmOtg%3D%3D",
 "Upgrade-Insecure-Requests": "1",
 "Sec-Fetch-Dest": "document",
 "Sec-Fetch-Mode": "navigate" ,
@@ -26,7 +28,7 @@ h = {
 }
 
 payload = {
-  "P_ALPHA": "265904",
+  "P_ALPHA": f"{alpha}",
   "P_LAST_NAME": "",
   "P_MICO_CO_NBR": "",
   "P_SECOF_COOF_SEBLDA_AC_YR": "2025",
@@ -38,5 +40,13 @@ payload = {
   "Z_CHK": "0" 
 }
 
+#Now we are changing it so that we can get information from user input. 
 response = requests.post(url, data = payload, headers = h)
-print(response.text)
+htmlData = response.content
+#We use our nice data and use the parsing method to extract class, schedules, & 
+#instructor names. 
+parsedData = BeautifulSoup(htmlData, "html.parser")
+elements = parsedData.body.find_all('tr', attrs = {'class':'cgrldatarow'})
+#Print out each data element. 
+for elem in elements:
+  print(elem.text)
